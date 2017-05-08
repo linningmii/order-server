@@ -1,12 +1,12 @@
 function parsePostData(context) {
   return new Promise((resolve, reject) => {
     try {
-      let postdata = ""
+      let postData = ''
       context.req.addListener('data', (data) => {
-        postdata += data
+        postData += data
       })
       context.req.addListener("end", function () {
-        let parseData = parseQueryStr(postdata)
+        let parseData = parseQueryStr(postData)
         resolve(parseData)
       })
     } catch (err) {
