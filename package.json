@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "kcors": "^1.3.2",
+    "koa": "^2.2.0",
+    "koa-router": "^7.1.1",
+    "mongoose": "^4.9.7"
+  }
+}
