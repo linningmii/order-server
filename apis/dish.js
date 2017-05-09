@@ -1,15 +1,6 @@
 const {parsePostData} = require('../utils')
 
-module.exports = function (router, db) {
-  const dishSchema = db.Schema({
-    restaurantId: String,
-    name: String,
-    description: String,
-    rate: Number
-  })
-
-  const Dish = db.model('Dish', dishSchema)
-
+module.exports = function (router, {Dish}) {
   router
     .post('/dish', async function (ctx) {
       let params = {}

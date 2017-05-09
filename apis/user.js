@@ -1,17 +1,12 @@
 const {parsePostData} = require('../utils')
 
-module.exports = function (router, db) {
-  const userSchema = db.Schema({
-    name: String
-  })
-
-  const User = db.model('User', userSchema)
-
+module.exports = function (router, {User}) {
   router
     .get('/user/list', async function (ctx) {
       let users = []
 
-      await User.find()
+      await User
+        .find()
         .then(resp => users = resp)
 
       ctx.body = {
@@ -28,7 +23,8 @@ module.exports = function (router, db) {
         })
 
       await new User({
-        name: params.name
+        username: params.username,
+        password: params.password
       })
         .save()
         .then(res => {
@@ -40,9 +36,40 @@ module.exports = function (router, db) {
         result: user
       }
     })
+    .post('/user/login', async function (ctx) {
+      let params = {}
+      let user
+      let message
+
+      await parsePostData(ctx)
+        .then(res => {
+          Object.assign(params, res)
+        })
+
+      console.log(params)
+      await User.findOne({
+        username: params.username,
+        password: params.password
+      })
+        .then(res => user = res)
+
+      message = user ? 'Login success!' : 'Login failure'
+
+      if (user) {
+        ctx.body = {
+          message,
+          result: user
+        }
+      } else {
+        ctx.body = {
+          message
+        }
+      }
+    })
     .get('/user/:id', async function (ctx) {
       let user, err
-      await User.findById(ctx.params.id)
+      await User
+        .findById(ctx.params.id)
         .then(res => user = res)
         .catch(e => err = e)
 
@@ -67,14 +94,12 @@ module.exports = function (router, db) {
       let message = ''
       let _id = ctx.params.id
 
-      await User.deleteOne({
-        _id
-      })
+      await User
+        .deleteOne({_id})
         .then(resp => {
-          console.log(!!resp.result.n)
           message = resp.result.n ? `Delete user ${_id} success!` : `Can not find user ${_id}!`
         })
-        .catch(() => message = `服务器炸了`)
+        .catch(() => message = '服务器炸了')
 
       ctx.body = {
         message

@@ -1,11 +1,19 @@
 module.exports = function () {
   return async function (ctx, next) {
     await next()
-    deleteV(ctx.body.result)
+
+    try {
+      deleteV(ctx.body.result)
+    } catch (err) {
+    }
   }
 }
 
 function deleteV(o) {
+  if (!o) {
+    return
+  }
+
   if (o.hasOwnProperty('__v')) {
     delete o.__v
   }
