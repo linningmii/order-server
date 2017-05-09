@@ -5,7 +5,7 @@ module.exports = function (router, db) {
     name: String
   })
 
-  const User = db.model('User',  userSchema)
+  const User = db.model('User', userSchema)
 
   router
     .get('/user/list', async function (ctx) {
@@ -15,7 +15,7 @@ module.exports = function (router, db) {
         .then(resp => users = resp)
 
       ctx.body = {
-        users
+        result: users
       }
     })
     .post('/user', async function (ctx) {
@@ -31,16 +31,13 @@ module.exports = function (router, db) {
         name: params.name
       })
         .save()
-        .then(resp => {
-          user = resp
+        .then(res => {
+          user = res._doc
         })
 
       ctx.body = {
         message: 'Create user success!',
-        user: {
-          _id: user._id,
-          name: user.name
-        }
+        result: user
       }
     })
     .get('/user/:id', async function (ctx) {
@@ -58,7 +55,7 @@ module.exports = function (router, db) {
       }
 
       ctx.body = {
-        user
+        result: user
       }
     })
     .put('/user/:id', function (ctx) {
@@ -67,14 +64,20 @@ module.exports = function (router, db) {
       }
     })
     .delete('/user/:id', async function (ctx) {
+      let message = ''
+      let _id = ctx.params.id
+
       await User.deleteOne({
-        _id: ctx.params.id
+        _id
       })
-        .then()
-        .catch()
+        .then(resp => {
+          console.log(!!resp.result.n)
+          message = resp.result.n ? `Delete user ${_id} success!` : `Can not find user ${_id}!`
+        })
+        .catch(() => message = `服务器炸了`)
 
       ctx.body = {
-        message: 'Delete user success!'
+        message
       }
     })
 
