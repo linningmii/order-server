@@ -4,6 +4,8 @@ module.exports = db => {
     db.Schema({
       username: String,
       password: String,
+      name: String,
+      sex: Number,
       isAdmin: Boolean,
       date: Array
     }))

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-mongoose.Promise = global.Promise
+mongoose.Promise = require('bluebird')
 const db = mongoose.connect('mongodb://localhost/orderDB')
 
 module.exports = {

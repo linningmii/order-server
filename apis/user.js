@@ -1,4 +1,4 @@
-const {parsePostData} = require('../utils')
+const {parsePostData, removeUselessProperties, notFoundErrorHandler} = require('../utils')
 
 module.exports = function (router, {User}) {
   router
@@ -24,7 +24,9 @@ module.exports = function (router, {User}) {
 
       await new User({
         username: params.username,
-        password: params.password
+        password: params.password,
+        name: params.name,
+        sex: params.sex
       })
         .save()
         .then(res => {
@@ -46,7 +48,6 @@ module.exports = function (router, {User}) {
           Object.assign(params, res)
         })
 
-      console.log(params)
       await User.findOne({
         username: params.username,
         password: params.password
@@ -67,27 +68,42 @@ module.exports = function (router, {User}) {
       }
     })
     .get('/user/:id', async function (ctx) {
-      let user, err
+      let user, _id = ctx.params.id, message
       await User
-        .findById(ctx.params.id)
+        .findById(_id)
         .then(res => user = res)
-        .catch(e => err = e)
+        .catch()
 
-      if (err) {
-        ctx.body = {
-          message: 'User not found'
-        }
-
-        return
-      }
-
+      message = user ? null : notFoundErrorHandler(User.modelName, _id)
       ctx.body = {
+        message: message,
         result: user
       }
     })
-    .put('/user/:id', function (ctx) {
+    .put('/user/:id', async function (ctx) {
+      let params = {}, updateInfo, message, _id = ctx.params.id
+
+      parsePostData(ctx)
+        .then(res => Object.assign(params, res))
+
+      updateInfo = {
+        password: params.password,
+        name: params.name,
+        sex: params.sex
+      }
+
+      updateInfo = removeUselessProperties(updateInfo)
+
+      await User
+        .findByIdAndUpdate(_id, updateInfo)
+        .then(res => {
+          message = res ? 'Update user success!' : 'Update user failed'
+        })
+        .catch(() => message = notFoundErrorHandler(User.modelName, _id))
+
       ctx.body = {
-        message: 'Update user success!'
+        result: updateInfo,
+        message
       }
     })
     .delete('/user/:id', async function (ctx) {
@@ -95,11 +111,11 @@ module.exports = function (router, {User}) {
       let _id = ctx.params.id
 
       await User
-        .deleteOne({_id})
-        .then(resp => {
-          message = resp.result.n ? `Delete user ${_id} success!` : `Can not find user ${_id}!`
+        .findByIdAndRemove(_id)
+        .then(res => {
+          message = res ? `Delete user ${_id} success!` : `User ${_id} has already deleted`
         })
-        .catch(() => message = '服务器炸了')
+        .catch(() => message = notFoundErrorHandler(User.modelName, _id))
 
       ctx.body = {
         message
