@@ -81,7 +81,11 @@ module.exports = function (router, {User}) {
       }
     })
     .put('/user/:id', async function (ctx) {
-      let params = {}, updateInfo, message, _id = ctx.params.id
+      let
+        params = {},
+        updateInfo,
+        message = '',
+        _id = ctx.params.id
 
       parsePostData(ctx)
         .then(res => Object.assign(params, res))
@@ -96,9 +100,7 @@ module.exports = function (router, {User}) {
 
       await User
         .findByIdAndUpdate(_id, updateInfo)
-        .then(res => {
-          message = res ? 'Update user success!' : 'Update user failed'
-        })
+        .then(res => message = res ? 'Update user success!' : 'Update user failed')
         .catch(() => message = notFoundErrorHandler(User.modelName, _id))
 
       ctx.body = {
