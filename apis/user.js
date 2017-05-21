@@ -7,7 +7,13 @@ module.exports = function (router, {User}) {
 
       await User
         .find()
-        .then(resp => users = resp)
+        .then(resp => users = resp.map(user => ({
+            id: user._id,
+            username: user.username,
+            name: user.name,
+            sex: user.sex
+          }))
+        )
 
       ctx.body = {
         result: users
