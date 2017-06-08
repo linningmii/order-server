@@ -83,7 +83,12 @@ module.exports = function (router, {User}) {
       message = user ? null : notFoundErrorHandler(User.modelName, _id)
       ctx.body = {
         message: message,
-        result: user
+        result: {
+          username: user.username,
+          name: user.name,
+          sex: user.sex,
+          date: user.date
+        }
       }
     })
     .put('/user/:id', async function (ctx) {

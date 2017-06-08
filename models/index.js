@@ -4,7 +4,7 @@ const db = mongoose.connect('mongodb://localhost/orderDB')
 
 module.exports = {
   db,
-  User: require('./user')(db),
-  Restaurant: require('./restaurant')(db),
-  Dish: require('./dish')(db)
+  User: require('./User')(db),
+  Restaurant: require('./Restaurant')(db),
+  Dish: require('./Dish')(db)
 }
