@@ -1,4 +1,5 @@
-const {parsePostData, removeUselessProperties, notFoundErrorHandler} = require('../utils')
+const {parsePostData, removeUselessProperties, notFoundErrorHandler, _} = require('../utils')
+const bodyParser = require('koa-body')();
 
 module.exports = function (router, {User}) {
   router
@@ -84,6 +85,7 @@ module.exports = function (router, {User}) {
       ctx.body = {
         message: message,
         result: {
+          id: user._id,
           username: user.username,
           name: user.name,
           sex: user.sex,
@@ -98,7 +100,7 @@ module.exports = function (router, {User}) {
         message = '',
         _id = ctx.params.id
 
-      parsePostData(ctx)
+      await parsePostData(ctx)
         .then(res => Object.assign(params, res))
 
       updateInfo = {
@@ -116,6 +118,31 @@ module.exports = function (router, {User}) {
 
       ctx.body = {
         result: updateInfo,
+        message
+      }
+    })
+    .patch('/user/:id', bodyParser, async function (ctx) {
+      let message = ''
+      let _id = ctx.params.id
+
+      let date = ctx.request.body.date
+
+      await User
+        .findById(_id)
+        .then(res => {
+          message = res ? 'Update user success!' : 'Update user failed'
+
+          // 存储日期时倒序存储
+          date = _.uniq(res.date.concat(date))
+        })
+        .catch(() => message = notFoundErrorHandler(User.modelName, _id))
+
+      await User
+        .findByIdAndUpdate(_id, {date})
+        .then()
+        .catch(() => message = notFoundErrorHandler(User.modelName, _id))
+
+      ctx.body = {
         message
       }
     })
