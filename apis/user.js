@@ -125,21 +125,13 @@ module.exports = function (router, {User}) {
       let message = ''
       let _id = ctx.params.id
 
-      let date = ctx.request.body.date
-
-      await User
-        .findById(_id)
-        .then(res => {
-          message = res ? 'Update user success!' : 'Update user failed'
-
-          // 存储日期时倒序存储
-          date = _.uniq(res.date.concat(date))
-        })
-        .catch(() => message = notFoundErrorHandler(User.modelName, _id))
+      let date = _.uniq(ctx.request.body.date)
 
       await User
         .findByIdAndUpdate(_id, {date})
-        .then()
+        .then(res => {
+          message = res ? 'Update user success!' : 'Update user failed'
+        })
         .catch(() => message = notFoundErrorHandler(User.modelName, _id))
 
       ctx.body = {
