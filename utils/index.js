@@ -1,11 +1,13 @@
 const parsePostData = require('./parsePostData')
 const removeUselessProperties = require('./removeUselessProperties')
 const notFoundErrorHandler = require('./notFoundErrorHandler')
-const _ = require('lodash')
+const lodash = require('lodash')
+const logger = require('./logger')
 
 module.exports = {
   parsePostData,
   removeUselessProperties,
   notFoundErrorHandler,
-  _
+  lodash,
+  logger
 }

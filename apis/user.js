@@ -1,4 +1,4 @@
-const {parsePostData, removeUselessProperties, notFoundErrorHandler, _} = require('../utils')
+const {parsePostData, removeUselessProperties, notFoundErrorHandler, lodash} = require('../utils')
 const bodyParser = require('koa-body')();
 
 module.exports = function (router, {User}) {
@@ -125,7 +125,7 @@ module.exports = function (router, {User}) {
       let message = ''
       let _id = ctx.params.id
 
-      let date = _.uniq(ctx.request.body.date)
+      let date = lodash.uniq(ctx.request.body.date)
 
       await User
         .findByIdAndUpdate(_id, {date})
