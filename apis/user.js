@@ -1,4 +1,4 @@
-const {parsePostData, removeUselessProperties, notFoundErrorHandler, lodash} = require('../utils')
+const {removeUselessProperties, notFoundErrorHandler, lodash} = require('../utils')
 const bodyParser = require('koa-body')();
 
 module.exports = function (router, {User}) {
@@ -17,23 +17,17 @@ module.exports = function (router, {User}) {
         )
 
       ctx.body = {
-        result: users
+        result: users.reverse()
       }
     })
-    .post('/user', async function (ctx) {
-      let params = {}
+    .post('/user', bodyParser, async function (ctx) {
       let user = {}
 
-      await parsePostData(ctx)
-        .then(res => {
-          Object.assign(params, res)
-        })
-
       await new User({
-        username: params.username,
-        password: params.password,
-        name: params.name,
-        sex: params.sex
+        username: ctx.request.body.username,
+        password: ctx.request.body.password,
+        name: ctx.request.body.name,
+        sex: ctx.request.body.sex
       })
         .save()
         .then(res => {
@@ -45,19 +39,13 @@ module.exports = function (router, {User}) {
         result: user
       }
     })
-    .post('/user/login', async function (ctx) {
-      let params = {}
+    .post('/user/login', bodyParser, async function (ctx) {
       let user
       let message
 
-      await parsePostData(ctx)
-        .then(res => {
-          Object.assign(params, res)
-        })
-
       await User.findOne({
-        username: params.username,
-        password: params.password
+        username: ctx.request.body.username,
+        password: ctx.request.body.password
       })
         .then(res => user = res)
 
@@ -93,20 +81,16 @@ module.exports = function (router, {User}) {
         }
       }
     })
-    .put('/user/:id', async function (ctx) {
+    .put('/user/:id', bodyParser, async function (ctx) {
       let
-        params = {},
         updateInfo,
         message = '',
         _id = ctx.params.id
 
-      await parsePostData(ctx)
-        .then(res => Object.assign(params, res))
-
       updateInfo = {
-        password: params.password,
-        name: params.name,
-        sex: params.sex
+        password: ctx.request.body.password,
+        name: ctx.request.body.name,
+        sex: ctx.request.body.sex
       }
 
       updateInfo = removeUselessProperties(updateInfo)
