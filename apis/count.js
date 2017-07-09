@@ -1,13 +1,36 @@
 const moment = require('moment')
 const {logger} = require('../utils')
+const fs = require('fs')
+const path = require('path')
+const util = require('util')
+const readFile = util.promisify(fs.readFile)
 
 module.exports = function (router, {User}) {
   router
-    .get('/count', function (ctx) {
+    .get('/count', async function (ctx) {
+      let
+        count,
+        countTime
+
+      await readFile(path.resolve(__dirname, '../logs/count.log'), 'utf8')
+        .then(log => {
+          const logs = log.split('\n')
+          let latestLog = logs[logs.length - 2]
+          const kv = latestLog.slice(latestLog.indexOf('time')).split(',')
+          let logData = {}
+          kv.forEach(kv => {
+            let separator = kv.indexOf(':')
+            logData[kv.slice(0, separator)] = parseInt(kv.slice(separator + 1))
+          })
+
+          count = logData.count
+          countTime = logData.time
+        })
+
       ctx.body = {
         result: {
-          count: 100,
-          countTime: 1497627794
+          count,
+          countTime
         }
       }
     })
@@ -31,7 +54,7 @@ module.exports = function (router, {User}) {
       countTime = moment().unix()
       cost = countTime - countStart
 
-      // logger.info(countTime)
+      logger.info(`time:${countTime},count:${count},cost:${cost}`)
 
       ctx.body = {
         result: {
