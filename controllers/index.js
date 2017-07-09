@@ -8,5 +8,5 @@ module.exports = function (router) {
   user(router, models)
   restaurant(router, models)
   dish(router, models)
-  count(router, models)
+  count(router)
 }
