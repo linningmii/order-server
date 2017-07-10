@@ -1,42 +1,38 @@
 const {removeUselessProperties, notFoundErrorHandler, lodash} = require('../utils')
-const bodyParser = require('koa-body')();
+const bodyParser = require('koa-body')()
+const moment = require('moment')
+const {user: userService} = require('../services')
 
 module.exports = function (router, {User}) {
   router
     .get('/user/list', async function (ctx) {
       let users = []
 
-      await User
-        .find()
-        .then(resp => users = resp.map(user => ({
-            id: user._id,
-            username: user.username,
-            name: user.name,
-            sex: user.sex
-          }))
-        )
+      const startTime = moment().unix()
+
+      await userService().getList()
+        .then(resp => users = resp)
 
       ctx.body = {
-        result: users.reverse()
+        result: users.reverse(),
+        cost: moment().unix() - startTime
       }
     })
     .post('/user', bodyParser, async function (ctx) {
-      let user = {}
+      let newUser = {}
 
-      await new User({
+      await userService().addUser({
         username: ctx.request.body.username,
         password: ctx.request.body.password,
         name: ctx.request.body.name,
         sex: ctx.request.body.sex
+      }).then(resp => {
+        Object.assign(newUser, resp)
       })
-        .save()
-        .then(res => {
-          user = res._doc
-        })
 
       ctx.body = {
         message: 'Create user success!',
-        result: user
+        result: newUser
       }
     })
     .post('/user/login', bodyParser, async function (ctx) {

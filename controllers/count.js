@@ -1,15 +1,15 @@
-const {count} = require('../services')
+const {count: countService} = require('../services')
 
 module.exports = function (router) {
   router
     .get('/count', async function (ctx) {
       ctx.body = {
-        result: await count().countFromLog()
+        result: await countService().countFromLog()
       }
     })
     .get('/count/update', async function (ctx) {
       ctx.body = {
-        result: await count().countFromDB()
+        result: await countService().countFromDB()
       }
     })
     .get('/count/update/startTime/:startTime/endTime/:endTime', async function (ctx) {
@@ -18,7 +18,7 @@ module.exports = function (router) {
         endTime = parseInt(ctx.params.endTime)
 
       ctx.body = {
-        result: await count().countFromDB(startTime, endTime)
+        result: await countService().countFromDB(startTime, endTime)
       }
     })
 }
